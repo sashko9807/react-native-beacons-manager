@@ -96,11 +96,11 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
   }
 
   @ReactMethod
-  public void addParser(String parser, Callback resolve, Callback reject) {
+  public void addParser(String parser, String beacon_type, Callback resolve, Callback reject) {
     try {
       Log.d(LOG_TAG, "BeaconsAndroidModule - addParser: " + parser);
       unbindManager();
-      mBeaconManager.getBeaconParsers().add(new BeaconParser().setBeaconLayout(parser));
+      mBeaconManager.getBeaconParsers().add(new BeaconParser(beacon_type).setBeaconLayout(parser));
       bindManager();
       resolve.invoke();
     } catch (Exception e) {
@@ -109,11 +109,11 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
   }
 
   @ReactMethod
-  public void removeParser(String parser, Callback resolve, Callback reject) {
+  public void removeParser(String parser, String beacon_type, Callback resolve, Callback reject) {
     try {
       Log.d(LOG_TAG, "BeaconsAndroidModule - removeParser: " + parser);
       unbindManager();
-      mBeaconManager.getBeaconParsers().remove(new BeaconParser().setBeaconLayout(parser));
+      mBeaconManager.getBeaconParsers().remove(new BeaconParser(beacon_type).setBeaconLayout(parser));
       bindManager();
       resolve.invoke();
     } catch (Exception e) {
@@ -368,6 +368,9 @@ public class BeaconsAndroidModule extends ReactContextBaseJavaModule implements 
       WritableArray a = new WritableNativeArray();
       for (Beacon beacon : beacons) {
           WritableMap b = new WritableNativeMap();
+          b.putString("beacon_type", beacon.getParserIdentifier());
+          b.putString("serviceUUID", String.valueOf(Integer.toHexString(beacon.getServiceUuid())));
+          b.putString("beacon_code", String.valueOf(Integer.toHexString(beacon.getBeaconTypeCode())));
           b.putString("uuid", beacon.getId1().toString());
           if (beacon.getIdentifiers().size() > 2) {
               b.putInt("major", beacon.getId2().toInt());
